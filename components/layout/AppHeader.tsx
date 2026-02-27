@@ -21,7 +21,7 @@ export function AppHeader() {
 						<path d="M10 16h4" />
 					</svg>
 				</div>
-				<span className="text-sm font-medium tracking-tight">Doc Q&A</span>
+				<span className="text-sm font-medium tracking-tight">PDFact</span>
 			</Link>
 		</header>
 	)

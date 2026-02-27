@@ -186,7 +186,7 @@ export function ChatSidebar({ chats, user }: Props) {
 						<LogoIcon />
 					</div>
 					<span className="truncate text-sm font-medium tracking-tight text-foreground">
-						Doc Q&A
+						PDFact
 					</span>
 				</Link>
 				<button

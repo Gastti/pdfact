@@ -111,7 +111,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 							</svg>
 						</div>
 						<span className="text-sm font-medium tracking-tight text-foreground">
-							Doc Q&A
+							PDFact
 						</span>
 					</Link>
 				</div>
@@ -148,7 +148,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 							<path d="M14 2v4a2 2 0 0 0 2 2h4" />
 						</svg>
 					</div>
-					<span className="text-sm font-medium tracking-tight">Doc Q&A</span>
+					<span className="text-sm font-medium tracking-tight">PDFact</span>
 				</div>
 
 				<div className="flex flex-1 items-center justify-center px-6 py-10 lg:px-10">

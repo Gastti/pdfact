@@ -21,7 +21,7 @@ const youngSerif = Young_Serif({
 })
 
 export const metadata: Metadata = {
-	title: 'Doc Q&A',
+	title: 'PDFact',
 	description: 'Hacé preguntas sobre tus documentos PDF usando IA.',
 }
 
