@@ -176,9 +176,7 @@ export function ChatWindow({ conversationId, documentName, initialMessages }: Pr
 							</div>
 						</div>
 
-						{/* Fade gradient at the bottom for smooth transition to input */}
-						<div className="pointer-events-none absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-background to-transparent" />
-					</>
+						</>
 				)}
 			</div>
 

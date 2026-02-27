@@ -1,5 +1,6 @@
 'use client'
 
+import ReactMarkdown from 'react-markdown'
 import { Tooltip as TooltipPrimitive } from 'radix-ui'
 import { cn } from '@/lib/utils'
 
@@ -82,19 +83,75 @@ function CitationBadge({ number, source }: { number: number; source: Source }) {
 	)
 }
 
-function renderContent(content: string, sources: Source[]) {
-	const parts = content.split(/(\[\d+\])/)
+// Renders inline text segments, resolving [N] citation tokens into badges
+function renderTextWithCitations(text: string, sources: Source[]) {
+	const parts = text.split(/(\[\d+\])/)
 	return parts.map((part, i) => {
 		const match = part.match(/^\[(\d+)\]$/)
 		if (match) {
 			const num = parseInt(match[1], 10)
 			const source = sources[num - 1]
-			if (source) {
-				return <CitationBadge key={i} number={num} source={source} />
-			}
+			if (source) return <CitationBadge key={i} number={num} source={source} />
 		}
 		return <span key={i}>{part}</span>
 	})
+}
+
+type MarkdownContentProps = { content: string; sources: Source[]; streaming: boolean }
+
+function MarkdownContent({ content, sources, streaming }: MarkdownContentProps) {
+	const hasSources = sources.length > 0
+
+	return (
+		<ReactMarkdown
+			components={{
+				// Paragraphs
+				p: ({ children }) => (
+					<p className="mb-2 last:mb-0 leading-[1.75]">{children}</p>
+				),
+				// Unordered lists
+				ul: ({ children }) => (
+					<ul className="mb-2 list-disc pl-5 space-y-0.5 last:mb-0">{children}</ul>
+				),
+				// Ordered lists
+				ol: ({ children }) => (
+					<ol className="mb-2 list-decimal pl-5 space-y-0.5 last:mb-0">{children}</ol>
+				),
+				li: ({ children }) => <li className="leading-[1.75]">{children}</li>,
+				// Bold / italic
+				strong: ({ children }) => (
+					<strong className="font-semibold text-foreground">{children}</strong>
+				),
+				em: ({ children }) => <em className="italic">{children}</em>,
+				// Inline code
+				code: ({ children }) => (
+					<code className="rounded bg-[#30363d] px-1 py-0.5 font-mono text-xs text-[#e6edf3]">
+						{children}
+					</code>
+				),
+				// Code blocks
+				pre: ({ children }) => (
+					<pre className="mb-2 overflow-x-auto rounded-lg bg-[#161b22] p-3 font-mono text-xs text-[#e6edf3] last:mb-0">
+						{children}
+					</pre>
+				),
+				// Headings
+				h1: ({ children }) => (
+					<h1 className="mb-1 mt-3 text-base font-semibold text-foreground first:mt-0">{children}</h1>
+				),
+				h2: ({ children }) => (
+					<h2 className="mb-1 mt-3 text-sm font-semibold text-foreground first:mt-0">{children}</h2>
+				),
+				h3: ({ children }) => (
+					<h3 className="mb-1 mt-2 text-sm font-medium text-foreground first:mt-0">{children}</h3>
+				),
+				// Horizontal rule — override browser's inset shadow default
+				hr: () => <hr className="my-3 border-t border-[#30363d]" />,
+			}}
+		>
+			{content}
+		</ReactMarkdown>
+	)
 }
 
 export function MessageBubble({ role, content, streaming = false, sources }: Props) {
@@ -110,16 +167,21 @@ export function MessageBubble({ role, content, streaming = false, sources }: Pro
 		)
 	}
 
-	const hasSources = sources && sources.length > 0
-	const hasInlineCitations = !streaming && hasSources && /\[\d+\]/.test(content)
-
 	return (
 		<div className="py-3">
 			<div className="border-l-2 border-[#58a6ff]/25 pl-4">
-				<div className="text-sm leading-[1.75] text-foreground/90">
-					{hasInlineCitations
-						? renderContent(content, sources!)
-						: content || (streaming ? '' : '…')}
+				<div className="text-sm text-foreground/90">
+					{content ? (
+						<MarkdownContent
+							content={content}
+							sources={sources ?? []}
+							streaming={streaming}
+						/>
+					) : streaming ? (
+						''
+					) : (
+						'…'
+					)}
 					{streaming && (
 						<span className="ml-1 inline-flex items-center gap-0.5 align-middle">
 							<span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#58a6ff]" />
