@@ -53,7 +53,8 @@ export function UploadArea() {
 			}
 
 			setState('done')
-			router.refresh()
+			const doc = json as { id: string }
+			router.push(`/documents/${doc.id}/chat`)
 		},
 		[router]
 	)
