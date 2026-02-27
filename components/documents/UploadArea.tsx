@@ -92,7 +92,7 @@ export function UploadArea() {
 			onDragLeave={() => setIsDragging(false)}
 			onDrop={handleDrop}
 		>
-			<div className="flex items-center gap-5 px-6 py-7">
+			<div className="flex flex-col gap-4 px-5 py-5 sm:flex-row sm:items-center sm:gap-5 sm:px-6 sm:py-7">
 				{state === 'idle' && (
 					<>
 						<div
@@ -105,7 +105,7 @@ export function UploadArea() {
 						>
 							<FileUp className="h-5 w-5" />
 						</div>
-						<div className="min-w-0 flex-1">
+						<div className="min-w-0 sm:flex-1">
 							<p className="text-sm font-medium text-foreground">
 								Arrastrá un PDF o hacé clic para seleccionar
 							</p>
@@ -116,7 +116,7 @@ export function UploadArea() {
 						<Button
 							variant="outline"
 							size="sm"
-							className="shrink-0 gap-1.5 border-border/80 transition-colors hover:border-[#58a6ff]/40 hover:text-[#58a6ff]"
+							className="justify-center gap-1.5 border-border/80 transition-colors hover:border-[#58a6ff]/40 hover:text-[#58a6ff] sm:shrink-0"
 							onClick={() => inputRef.current?.click()}
 						>
 							<Upload className="h-3.5 w-3.5" />
@@ -140,7 +140,7 @@ export function UploadArea() {
 						<div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-border bg-secondary/50">
 							<Loader2 className="h-5 w-5 animate-spin text-[#58a6ff]" />
 						</div>
-						<div className="min-w-0 flex-1">
+						<div className="min-w-0 sm:flex-1">
 							<p className="text-sm font-medium text-foreground">
 								Procesando documento…
 							</p>
@@ -156,7 +156,7 @@ export function UploadArea() {
 						<div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[#3fb950]/30 bg-[#3fb950]/10">
 							<CheckCircle2 className="h-5 w-5 text-[#3fb950]" />
 						</div>
-						<div className="min-w-0 flex-1">
+						<div className="min-w-0 sm:flex-1">
 							<p className="text-sm font-medium text-foreground">
 								¡Documento procesado!
 							</p>
@@ -167,7 +167,7 @@ export function UploadArea() {
 						<Button
 							variant="ghost"
 							size="sm"
-							className="shrink-0 text-xs text-muted-foreground"
+							className="justify-center text-xs text-muted-foreground sm:shrink-0"
 							onClick={reset}
 						>
 							Subir otro
@@ -180,13 +180,13 @@ export function UploadArea() {
 						<div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-destructive/30 bg-destructive/10">
 							<AlertCircle className="h-5 w-5 text-destructive" />
 						</div>
-						<div className="min-w-0 flex-1">
+						<div className="min-w-0 sm:flex-1">
 							<p className="text-sm font-medium text-destructive">{error}</p>
 						</div>
 						<Button
 							variant="ghost"
 							size="sm"
-							className="shrink-0 text-xs text-muted-foreground"
+							className="justify-center text-xs text-muted-foreground sm:shrink-0"
 							onClick={reset}
 						>
 							Reintentar
