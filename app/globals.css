@@ -166,6 +166,18 @@
 	background-size: 200% 100%;
 }
 
+@keyframes slow-ping {
+	75%,
+	100% {
+		transform: scale(1.8);
+		opacity: 0;
+	}
+}
+
+.animate-slow-ping {
+	animation: slow-ping 2.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
 /* Top loader */
 @keyframes toploader-progress {
 	0% {

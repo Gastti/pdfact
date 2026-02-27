@@ -27,7 +27,10 @@ export default function RegisterPage() {
 		const { error } = await supabase.auth.signUp({
 			email,
 			password,
-			options: { data: { full_name: fullName.trim() } },
+			options: {
+				data: { full_name: fullName.trim() },
+				emailRedirectTo: `${window.location.origin}/dashboard`,
+			},
 		})
 
 		if (error) {
@@ -36,8 +39,7 @@ export default function RegisterPage() {
 			return
 		}
 
-		router.push('/new')
-		router.refresh()
+		router.push(`/verify-email?email=${encodeURIComponent(email)}`)
 	}
 
 	return (
