@@ -17,7 +17,7 @@ Chat con documentos PDF usando Retrieval-Augmented Generation (RAG). Subí un PD
 1. Clonar el repo e instalar dependencias:
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/Gastti/pdfact
 cd pdfact
 npm install
 ```
