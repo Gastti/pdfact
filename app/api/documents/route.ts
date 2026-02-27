@@ -4,6 +4,8 @@ import { extractTextFromPDF } from '@/lib/pdf/parser'
 import { chunkText } from '@/lib/pdf/chunker'
 import { generateEmbedding } from '@/lib/gemini/embeddings'
 
+export const maxDuration = 60 // segundos — necesario para PDFs con muchos chunks
+
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 MB
 
 export async function POST(request: Request) {

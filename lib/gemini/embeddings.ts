@@ -6,6 +6,7 @@ export async function generateEmbedding(text: string): Promise<number[]> {
   const result = await hf.featureExtraction({
     model: 'sentence-transformers/all-MiniLM-L6-v2',
     inputs: text,
+    provider: 'hf-inference',
   })
 
   // El SDK retorna number[] para un solo string input

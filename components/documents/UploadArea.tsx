@@ -32,15 +32,23 @@ export function UploadArea() {
 			setError(null)
 
 			let res: Response
-			let json: unknown
 			try {
 				const formData = new FormData()
 				formData.append('file', file)
 				res = await fetch('/api/documents', { method: 'POST', body: formData })
-				json = await res.json()
 			} catch (err) {
 				console.error('[UploadArea] fetch falló:', err)
 				setError('No se pudo conectar con el servidor.')
+				setState('error')
+				return
+			}
+
+			let json: unknown
+			try {
+				json = await res.json()
+			} catch (err) {
+				console.error('[UploadArea] respuesta vacía (posible timeout):', err)
+				setError('El servidor no respondió. El PDF puede ser muy grande — intentá de nuevo.')
 				setState('error')
 				return
 			}
