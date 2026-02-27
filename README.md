@@ -1,4 +1,4 @@
-# doc-qa
+# PDFact
 
 Chat con documentos PDF usando Retrieval-Augmented Generation (RAG). Subí un PDF, hacé preguntas y obtené respuestas basadas en el contenido del documento.
 
@@ -18,7 +18,7 @@ Chat con documentos PDF usando Retrieval-Augmented Generation (RAG). Subí un PD
 
 ```bash
 git clone <repo-url>
-cd doc-qa
+cd pdfact
 npm install
 ```
 
