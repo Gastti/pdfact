@@ -48,7 +48,7 @@ export function ChatInput({ onSend, disabled = false }: Props) {
 						className="max-h-40 w-full resize-none bg-transparent px-4 py-3.5 text-sm leading-relaxed placeholder:text-muted-foreground/35 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
 					/>
 					<div className="flex items-center justify-between px-3 pb-2.5">
-						<p className="text-[11px] text-muted-foreground/25">
+						<p className="hidden text-[11px] text-muted-foreground/25 md:block">
 							Enter enviar · Shift+Enter nueva línea
 						</p>
 						<button

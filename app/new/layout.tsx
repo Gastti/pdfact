@@ -30,7 +30,7 @@ export default async function NewChatLayout({ children }: { children: React.Reac
 	}
 
 	return (
-		<div className="flex h-screen">
+		<div className="flex h-[100dvh]">
 			<ChatSidebar chats={chats} user={userInfo} />
 			<main className="min-w-0 flex-1 overflow-hidden">{children}</main>
 		</div>

@@ -11,6 +11,7 @@ import {
 	LogOut,
 	ChevronsUpDown,
 	Plus,
+	Menu,
 } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
@@ -83,9 +84,29 @@ export function ChatSidebar({ chats, user }: Props) {
 	const pathname = usePathname()
 	const logout = useLogout()
 	const [collapsed, setCollapsed] = useState(false)
+	const [mobileOpen, setMobileOpen] = useState(false)
+	const [isMobile, setIsMobile] = useState(false)
 	const [width, setWidth] = useState(DEFAULT_WIDTH)
 	const isResizing = useRef(false)
 	const sidebarRef = useRef<HTMLDivElement>(null)
+
+	// Detect mobile
+	useEffect(() => {
+		const check = () => setIsMobile(window.innerWidth < 768)
+		check()
+		window.addEventListener('resize', check)
+		return () => window.removeEventListener('resize', check)
+	}, [])
+
+	// Close mobile sidebar when navigating
+	useEffect(() => {
+		setMobileOpen(false)
+	}, [pathname])
+
+	// Close mobile sidebar when resizing to desktop
+	useEffect(() => {
+		if (!isMobile) setMobileOpen(false)
+	}, [isMobile])
 
 	const handleMouseDown = useCallback((e: React.MouseEvent) => {
 		e.preventDefault()
@@ -121,214 +142,246 @@ export function ChatSidebar({ chats, user }: Props) {
 
 	const isNewChat = pathname === '/new'
 
-	if (collapsed) {
-		return (
-			<div className="flex w-12 shrink-0 flex-col items-center justify-between border-r border-border bg-card/50 py-3">
-				<TooltipProvider delayDuration={200}>
-					<div className="flex flex-col items-center gap-2">
-						<Tooltip>
-							<TooltipTrigger asChild>
-								<button
-									onClick={() => setCollapsed(false)}
-									className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary/60 hover:text-foreground"
-								>
-									<PanelLeft className="h-4 w-4" />
-								</button>
-							</TooltipTrigger>
-							<TooltipContent side="right">Abrir sidebar</TooltipContent>
-						</Tooltip>
-
-						<Tooltip>
-							<TooltipTrigger asChild>
-								<Link
-									href="/new"
-									className={cn(
-										'flex h-8 w-8 items-center justify-center rounded-md transition-colors',
-										isNewChat
-											? 'bg-[#58a6ff]/10 text-[#58a6ff]'
-											: 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground'
-									)}
-								>
-									<Plus className="h-4 w-4" />
-								</Link>
-							</TooltipTrigger>
-							<TooltipContent side="right">Nuevo chat</TooltipContent>
-						</Tooltip>
-					</div>
-
-					<Tooltip>
-						<TooltipTrigger asChild>
-							<Avatar className="h-8 w-8 border border-border">
-								<AvatarFallback className="bg-secondary text-xs text-muted-foreground">
-									{getInitials(user.name, user.email)}
-								</AvatarFallback>
-							</Avatar>
-						</TooltipTrigger>
-						<TooltipContent side="right">
-							{getDisplayName(user.name)}
-						</TooltipContent>
-					</Tooltip>
-				</TooltipProvider>
-			</div>
-		)
-	}
-
 	return (
-		<div
-			ref={sidebarRef}
-			className="relative flex shrink-0 flex-col border-r border-border bg-card/50"
-			style={{ width, minWidth: width, maxWidth: width }}
-		>
-			{/* Logo + collapse */}
-			<div className="flex items-center justify-between border-b border-border px-4 py-3">
-				<Link href="/new" className="flex items-center gap-2.5 overflow-hidden">
-					<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#58a6ff]/10 text-[#58a6ff]">
-						<LogoIcon />
-					</div>
-					<span className="truncate text-sm font-medium tracking-tight text-foreground">
-						PDFact
-					</span>
-				</Link>
+		<>
+			{/* Mobile hamburger — fixed, only visible when sidebar is closed on mobile */}
+			{!mobileOpen && (
 				<button
-					onClick={() => setCollapsed(true)}
-					className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary/60 hover:text-foreground"
+					className="fixed left-4 top-[11px] z-30 flex h-8 w-8 items-center justify-center rounded-md border border-border/60 bg-card/95 text-muted-foreground transition-colors hover:bg-secondary/60 hover:text-foreground md:hidden"
+					onClick={() => setMobileOpen(true)}
+					aria-label="Abrir menú"
 				>
-					<PanelLeftClose className="h-4 w-4" />
+					<Menu className="h-4 w-4" />
 				</button>
-			</div>
+			)}
 
-			{/* New chat button */}
-			<div className="p-2 pb-0">
-				<Link
-					href="/new"
-					className={cn(
-						'flex items-center gap-2.5 overflow-hidden rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
-						isNewChat
-							? 'bg-[#58a6ff]/10 text-[#58a6ff]'
-							: 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground'
-					)}
-				>
-					<Plus className="h-4 w-4 shrink-0" />
-					<span className="truncate">Nuevo chat</span>
-				</Link>
-			</div>
+			{/* Mobile backdrop */}
+			{mobileOpen && (
+				<div
+					className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden"
+					onClick={() => setMobileOpen(false)}
+				/>
+			)}
 
-			{/* Chat list header */}
-			<div className="flex items-center gap-2 px-4 pb-1 pt-3">
-				<MessageSquare className="h-3.5 w-3.5 shrink-0 text-muted-foreground/50" />
-				<span className="truncate text-[11px] font-medium uppercase tracking-wider text-muted-foreground/50">
-					Chats
-				</span>
-				<span className="ml-auto shrink-0 text-[11px] tabular-nums text-muted-foreground/40">
-					{chats.length}
-				</span>
-			</div>
-
-			{/* Chat list */}
-			<div className="flex-1 overflow-x-hidden overflow-y-auto">
-				{chats.length === 0 ? (
-					<div className="flex flex-col items-center px-4 py-10 text-center">
-						<p className="text-xs leading-relaxed text-muted-foreground/50">
-							Tus chats aparecerán acá.
-						</p>
-					</div>
-				) : (
-					<nav className="flex flex-col gap-0.5 p-2">
-						{chats.map((chat) => {
-							const href = `/documents/${chat.documentId}/chat`
-							const isActive = pathname === href
-
-							return (
-								<Link
-									key={chat.documentId}
-									href={href}
-									title={chat.documentName}
-									className={cn(
-										'group flex items-start gap-3 overflow-hidden rounded-lg px-3 py-2.5 transition-colors',
-										isActive
-											? 'bg-[#58a6ff]/10 text-foreground'
-											: 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground'
-									)}
-								>
-									<div
-										className={cn(
-											'mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors',
-											isActive
-												? 'bg-[#58a6ff]/15 text-[#58a6ff]'
-												: 'bg-secondary/80 text-muted-foreground group-hover:text-foreground'
-										)}
-									>
-										<FileText className="h-3.5 w-3.5" />
-									</div>
-									<div className="min-w-0 flex-1 overflow-hidden">
-										<p className="truncate text-sm font-medium leading-snug">
-											{chat.documentName}
-										</p>
-										<p className="mt-0.5 truncate text-[11px] text-muted-foreground">
-											{formatDate(chat.createdAt)}
-										</p>
-									</div>
-								</Link>
-							)
-						})}
-					</nav>
+			{/* Full sidebar panel
+			    Mobile: fixed overlay, slides in/out
+			    Desktop: in-flow, resizable, collapsible */}
+			<div
+				ref={sidebarRef}
+				className={cn(
+					'flex flex-col border-r border-border bg-card/50',
+					// Mobile: fixed overlay
+					'fixed inset-y-0 left-0 z-50 w-72',
+					'transition-transform duration-200 ease-in-out',
+					mobileOpen ? 'translate-x-0' : '-translate-x-full',
+					// Desktop: override mobile positioning, in-flow
+					'md:relative md:inset-auto md:z-auto md:translate-x-0 md:transition-none md:shrink-0',
+					collapsed ? 'md:hidden' : 'md:flex',
 				)}
-			</div>
-
-			{/* User profile footer */}
-			<div className="relative border-t border-border p-2">
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<button className="flex w-full items-center gap-3 overflow-hidden rounded-lg px-3 py-2.5 text-left outline-none transition-colors hover:bg-secondary/60">
-							<Avatar className="h-8 w-8 shrink-0 border border-border">
-								<AvatarFallback className="bg-secondary text-xs text-muted-foreground">
-									{getInitials(user.name, user.email)}
-								</AvatarFallback>
-							</Avatar>
-							<div className="min-w-0 flex-1 overflow-hidden">
-								<p className="truncate text-sm font-medium leading-snug text-foreground">
-									{getDisplayName(user.name)}
-								</p>
-								{user.email && (
-									<p className="truncate text-[11px] text-muted-foreground">
-										{user.email}
-									</p>
-								)}
-							</div>
-							<ChevronsUpDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground/50" />
-						</button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent
-						side="top"
-						align="center"
-						sideOffset={6}
-						className="w-[calc(var(--radix-dropdown-menu-trigger-width)+2px)]"
+				style={isMobile ? undefined : (collapsed ? undefined : { width, minWidth: width, maxWidth: width })}
+			>
+				{/* Logo + close button */}
+				<div className="flex items-center justify-between border-b border-border px-4 py-3">
+					<Link href="/new" className="flex items-center gap-2.5 overflow-hidden">
+						<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#58a6ff]/10 text-[#58a6ff]">
+							<LogoIcon />
+						</div>
+						<span className="truncate text-sm font-medium tracking-tight text-foreground">
+							PDFact
+						</span>
+					</Link>
+					<button
+						onClick={() => isMobile ? setMobileOpen(false) : setCollapsed(true)}
+						className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary/60 hover:text-foreground"
 					>
-						<div className="px-2 py-1.5">
-							<p className="truncate text-sm font-medium">
-								{getDisplayName(user.name)}
-							</p>
-							<p className="truncate text-xs text-muted-foreground">
-								{user.email ?? '—'}
+						<PanelLeftClose className="h-4 w-4" />
+					</button>
+				</div>
+
+				{/* New chat button */}
+				<div className="p-2 pb-0">
+					<Link
+						href="/new"
+						className={cn(
+							'flex items-center gap-2.5 overflow-hidden rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+							isNewChat
+								? 'bg-[#58a6ff]/10 text-[#58a6ff]'
+								: 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground'
+						)}
+					>
+						<Plus className="h-4 w-4 shrink-0" />
+						<span className="truncate">Nuevo chat</span>
+					</Link>
+				</div>
+
+				{/* Chat list header */}
+				<div className="flex items-center gap-2 px-4 pb-1 pt-3">
+					<MessageSquare className="h-3.5 w-3.5 shrink-0 text-muted-foreground/50" />
+					<span className="truncate text-[11px] font-medium uppercase tracking-wider text-muted-foreground/50">
+						Chats
+					</span>
+					<span className="ml-auto shrink-0 text-[11px] tabular-nums text-muted-foreground/40">
+						{chats.length}
+					</span>
+				</div>
+
+				{/* Chat list */}
+				<div className="flex-1 overflow-x-hidden overflow-y-auto">
+					{chats.length === 0 ? (
+						<div className="flex flex-col items-center px-4 py-10 text-center">
+							<p className="text-xs leading-relaxed text-muted-foreground/50">
+								Tus chats aparecerán acá.
 							</p>
 						</div>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem
-							onClick={logout}
-							className="text-destructive focus:text-destructive"
+					) : (
+						<nav className="flex flex-col gap-0.5 p-2">
+							{chats.map((chat) => {
+								const href = `/documents/${chat.documentId}/chat`
+								const isActive = pathname === href
+
+								return (
+									<Link
+										key={chat.documentId}
+										href={href}
+										title={chat.documentName}
+										className={cn(
+											'group flex items-start gap-3 overflow-hidden rounded-lg px-3 py-2.5 transition-colors',
+											isActive
+												? 'bg-[#58a6ff]/10 text-foreground'
+												: 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground'
+										)}
+									>
+										<div
+											className={cn(
+												'mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors',
+												isActive
+													? 'bg-[#58a6ff]/15 text-[#58a6ff]'
+													: 'bg-secondary/80 text-muted-foreground group-hover:text-foreground'
+											)}
+										>
+											<FileText className="h-3.5 w-3.5" />
+										</div>
+										<div className="min-w-0 flex-1 overflow-hidden">
+											<p className="truncate text-sm font-medium leading-snug">
+												{chat.documentName}
+											</p>
+											<p className="mt-0.5 truncate text-[11px] text-muted-foreground">
+												{formatDate(chat.createdAt)}
+											</p>
+										</div>
+									</Link>
+								)
+							})}
+						</nav>
+					)}
+				</div>
+
+				{/* User profile footer */}
+				<div className="relative border-t border-border p-2">
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<button className="flex w-full items-center gap-3 overflow-hidden rounded-lg px-3 py-2.5 text-left outline-none transition-colors hover:bg-secondary/60">
+								<Avatar className="h-8 w-8 shrink-0 border border-border">
+									<AvatarFallback className="bg-secondary text-xs text-muted-foreground">
+										{getInitials(user.name, user.email)}
+									</AvatarFallback>
+								</Avatar>
+								<div className="min-w-0 flex-1 overflow-hidden">
+									<p className="truncate text-sm font-medium leading-snug text-foreground">
+										{getDisplayName(user.name)}
+									</p>
+									{user.email && (
+										<p className="truncate text-[11px] text-muted-foreground">
+											{user.email}
+										</p>
+									)}
+								</div>
+								<ChevronsUpDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground/50" />
+							</button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent
+							side="top"
+							align="center"
+							sideOffset={6}
+							className="w-[calc(var(--radix-dropdown-menu-trigger-width)+2px)]"
 						>
-							<LogOut className="mr-2 h-3.5 w-3.5" />
-							Cerrar sesión
-						</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
+							<div className="px-2 py-1.5">
+								<p className="truncate text-sm font-medium">
+									{getDisplayName(user.name)}
+								</p>
+								<p className="truncate text-xs text-muted-foreground">
+									{user.email ?? '—'}
+								</p>
+							</div>
+							<DropdownMenuSeparator />
+							<DropdownMenuItem
+								onClick={logout}
+								className="text-destructive focus:text-destructive"
+							>
+								<LogOut className="mr-2 h-3.5 w-3.5" />
+								Cerrar sesión
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				</div>
+
+				{/* Resize handle — desktop only */}
+				<div
+					onMouseDown={handleMouseDown}
+					className="absolute -right-1 top-0 z-10 hidden h-full w-2 cursor-col-resize hover:bg-[#58a6ff]/10 active:bg-[#58a6ff]/15 md:block"
+				/>
 			</div>
 
-			{/* Resize handle */}
-			<div
-				onMouseDown={handleMouseDown}
-				className="absolute -right-1 top-0 z-10 h-full w-2 cursor-col-resize hover:bg-[#58a6ff]/10 active:bg-[#58a6ff]/15"
-			/>
-		</div>
+			{/* Desktop collapsed icon rail — hidden on mobile */}
+			{collapsed && (
+				<div className="hidden w-12 shrink-0 flex-col items-center justify-between border-r border-border bg-card/50 py-3 md:flex">
+					<TooltipProvider delayDuration={200}>
+						<div className="flex flex-col items-center gap-2">
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<button
+										onClick={() => setCollapsed(false)}
+										className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary/60 hover:text-foreground"
+									>
+										<PanelLeft className="h-4 w-4" />
+									</button>
+								</TooltipTrigger>
+								<TooltipContent side="right">Abrir sidebar</TooltipContent>
+							</Tooltip>
+
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Link
+										href="/new"
+										className={cn(
+											'flex h-8 w-8 items-center justify-center rounded-md transition-colors',
+											isNewChat
+												? 'bg-[#58a6ff]/10 text-[#58a6ff]'
+												: 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground'
+										)}
+									>
+										<Plus className="h-4 w-4" />
+									</Link>
+								</TooltipTrigger>
+								<TooltipContent side="right">Nuevo chat</TooltipContent>
+							</Tooltip>
+						</div>
+
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Avatar className="h-8 w-8 border border-border">
+									<AvatarFallback className="bg-secondary text-xs text-muted-foreground">
+										{getInitials(user.name, user.email)}
+									</AvatarFallback>
+								</Avatar>
+							</TooltipTrigger>
+							<TooltipContent side="right">
+								{getDisplayName(user.name)}
+							</TooltipContent>
+						</Tooltip>
+					</TooltipProvider>
+				</div>
+			)}
+		</>
 	)
 }

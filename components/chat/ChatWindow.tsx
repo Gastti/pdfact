@@ -118,7 +118,7 @@ export function ChatWindow({ conversationId, documentName, initialMessages }: Pr
 	return (
 		<div className="flex h-full flex-col">
 			{/* Header — document context bar */}
-			<div className="flex items-center gap-3 border-b border-border px-5 py-3">
+			<div className="flex items-center gap-3 border-b border-border py-3 pl-14 pr-5 md:px-5">
 				<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#58a6ff]/10 text-[#58a6ff]">
 					<FileText className="h-3.5 w-3.5" />
 				</div>
