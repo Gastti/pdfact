@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import ReactMarkdown from 'react-markdown'
 import { Tooltip as TooltipPrimitive } from 'radix-ui'
 import { cn } from '@/lib/utils'
@@ -19,7 +20,7 @@ type Props = {
 
 function CitationBadge({ number, source }: { number: number; source: Source }) {
 	return (
-		<TooltipPrimitive.Provider delayDuration={120}>
+		<TooltipPrimitive.Provider delayDuration={100}>
 			<TooltipPrimitive.Root>
 				<TooltipPrimitive.Trigger asChild>
 					<span
@@ -29,7 +30,7 @@ function CitationBadge({ number, source }: { number: number; source: Source }) {
 							'border border-[#58a6ff]/30 bg-[#58a6ff]/10',
 							'font-mono text-[9px] font-semibold leading-none text-[#58a6ff]',
 							'transition-all duration-150',
-							'hover:scale-110 hover:border-[#58a6ff]/55 hover:bg-[#58a6ff]/20',
+							'hover:scale-110 hover:border-[#58a6ff]/55 hover:bg-[#58a6ff]/20 hover:shadow-[0_0_6px_rgba(88,166,255,0.2)]',
 						)}
 					>
 						{number}
@@ -42,32 +43,34 @@ function CitationBadge({ number, source }: { number: number; source: Source }) {
 						sideOffset={8}
 						collisionPadding={16}
 						className={cn(
-							'z-50 w-72 rounded-xl',
+							'z-50 w-72 overflow-hidden rounded-xl',
 							'border border-[#30363d] bg-[#161b22]',
-							'shadow-xl shadow-black/50',
-							'animate-in fade-in-0 zoom-in-95',
+							'shadow-xl shadow-black/60',
+							'animate-in fade-in-0 zoom-in-95 duration-100',
 							'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
 							'data-[side=top]:slide-in-from-bottom-1',
 							'data-[side=bottom]:slide-in-from-top-1',
 						)}
 					>
+						{/* Accent bar */}
+						<div className="h-[2px] w-full bg-gradient-to-r from-[#58a6ff]/60 via-[#58a6ff]/20 to-transparent" />
+
 						<div className="px-3.5 py-3">
 							{/* Header */}
-							<div className="mb-2 flex items-center gap-1.5">
-								<span className="inline-flex h-[15px] w-[15px] items-center justify-center rounded-full border border-[#58a6ff]/30 bg-[#58a6ff]/10 font-mono text-[8px] font-semibold text-[#58a6ff]">
+							<div className="mb-2.5 flex items-center gap-2">
+								<span className="inline-flex h-[15px] w-[15px] shrink-0 items-center justify-center rounded-full border border-[#58a6ff]/30 bg-[#58a6ff]/10 font-mono text-[8px] font-semibold text-[#58a6ff]">
 									{number}
 								</span>
-								<span className="text-[10px] font-medium uppercase tracking-wider text-[#8b949e]/60">
+								<span className="text-[10px] font-medium uppercase tracking-widest text-[#8b949e]/50">
 									Fragmento {source.chunk_index + 1}
 								</span>
 							</div>
 
 							{/* Content */}
-							<p className="text-xs leading-relaxed text-[#8b949e]">
-								{source.content}
-								{source.content.length >= 300 && (
-									<span className="text-[#8b949e]/40"> …</span>
-								)}
+							<p className="text-[11px] leading-relaxed text-[#8b949e]">
+								{source.content.length > 280
+									? source.content.slice(0, 280) + '…'
+									: source.content}
 							</p>
 						</div>
 
@@ -83,9 +86,10 @@ function CitationBadge({ number, source }: { number: number; source: Source }) {
 	)
 }
 
-// Renders inline text segments, resolving [N] citation tokens into badges
+// Renders a text string, replacing [N] tokens with CitationBadge components
 function renderTextWithCitations(text: string, sources: Source[]) {
 	const parts = text.split(/(\[\d+\])/)
+	if (parts.length === 1) return [<React.Fragment key={0}>{text}</React.Fragment>]
 	return parts.map((part, i) => {
 		const match = part.match(/^\[(\d+)\]$/)
 		if (match) {
@@ -93,7 +97,17 @@ function renderTextWithCitations(text: string, sources: Source[]) {
 			const source = sources[num - 1]
 			if (source) return <CitationBadge key={i} number={num} source={source} />
 		}
-		return <span key={i}>{part}</span>
+		return <React.Fragment key={i}>{part}</React.Fragment>
+	})
+}
+
+// Walks React children and processes string nodes for citations
+function processNodes(children: React.ReactNode, sources: Source[]): React.ReactNode {
+	return React.Children.map(children, (child) => {
+		if (typeof child === 'string') {
+			return renderTextWithCitations(child, sources)
+		}
+		return child
 	})
 }
 
@@ -107,7 +121,9 @@ function MarkdownContent({ content, sources, streaming }: MarkdownContentProps) 
 			components={{
 				// Paragraphs
 				p: ({ children }) => (
-					<p className="mb-2 last:mb-0 leading-[1.75]">{children}</p>
+					<p className="mb-2 last:mb-0 leading-[1.75]">
+						{hasSources ? processNodes(children, sources) : children}
+					</p>
 				),
 				// Unordered lists
 				ul: ({ children }) => (
@@ -117,7 +133,11 @@ function MarkdownContent({ content, sources, streaming }: MarkdownContentProps) 
 				ol: ({ children }) => (
 					<ol className="mb-2 list-decimal pl-5 space-y-0.5 last:mb-0">{children}</ol>
 				),
-				li: ({ children }) => <li className="leading-[1.75]">{children}</li>,
+				li: ({ children }) => (
+					<li className="leading-[1.75]">
+						{hasSources ? processNodes(children, sources) : children}
+					</li>
+				),
 				// Bold / italic
 				strong: ({ children }) => (
 					<strong className="font-semibold text-foreground">{children}</strong>
@@ -145,7 +165,7 @@ function MarkdownContent({ content, sources, streaming }: MarkdownContentProps) 
 				h3: ({ children }) => (
 					<h3 className="mb-1 mt-2 text-sm font-medium text-foreground first:mt-0">{children}</h3>
 				),
-				// Horizontal rule — override browser's inset shadow default
+				// Horizontal rule
 				hr: () => <hr className="my-3 border-t border-[#30363d]" />,
 			}}
 		>

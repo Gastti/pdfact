@@ -21,3 +21,21 @@ export async function generateEmbedding(text: string): Promise<number[]> {
 
   throw new Error('Formato de respuesta inesperado de HF')
 }
+
+// Batch: una sola llamada a HF para todos los textos → number[][]
+export async function generateEmbeddings(texts: string[]): Promise<(number[] | null)[]> {
+  if (texts.length === 0) return []
+
+  const result = await hf.featureExtraction({
+    model: 'sentence-transformers/all-MiniLM-L6-v2',
+    inputs: texts,
+    provider: 'hf-inference',
+  })
+
+  // inputs: string[] → result: number[][]
+  if (Array.isArray(result) && Array.isArray(result[0])) {
+    return (result as number[][]).map((v) => (v.length > 0 ? v : null))
+  }
+
+  return texts.map(() => null)
+}
