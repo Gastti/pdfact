@@ -1,7 +1,8 @@
-import * as pdfjs from 'pdfjs-dist'
+import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs'
 
-// In Node.js / Vercel serverless environments there is no web worker support.
-// Setting workerSrc to an empty string tells pdfjs to run in the main thread.
+// The legacy build is required in Node.js (polyfills browser APIs like DOMMatrix).
+// Setting workerSrc to '' disables the web worker so pdfjs runs in the main thread,
+// which is the correct approach for Vercel serverless environments.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ;(pdfjs as any).GlobalWorkerOptions.workerSrc = ''
 
