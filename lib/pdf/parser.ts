@@ -1,13 +1,14 @@
-import { join } from 'path'
+import { createRequire } from 'module'
 import { pathToFileURL } from 'url'
 import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs'
 
-// En Node.js, workerSrc = '' no es una URL válida para worker_threads.
-// Usamos process.cwd() para construir la ruta absoluta al worker y convertirla
-// a file:// URL que Node.js worker_threads puede cargar correctamente.
+// Usamos createRequire para resolver el path del worker via el algoritmo de resolución
+// de módulos de Node.js, en vez de hardcodear process.cwd() + node_modules/.
+// Esto funciona correctamente tanto en local como en Vercel serverless.
+const _require = createRequire(import.meta.url)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ;(pdfjs as any).GlobalWorkerOptions.workerSrc = pathToFileURL(
-  join(process.cwd(), 'node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs'),
+  _require.resolve('pdfjs-dist/legacy/build/pdf.worker.mjs'),
 ).href
 
 export async function extractTextFromPDF(buffer: ArrayBuffer): Promise<string> {
