@@ -1,12 +1,14 @@
-import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs'
-
-// The legacy build is required in Node.js (polyfills browser APIs like DOMMatrix).
-// Setting workerSrc to '' disables the web worker so pdfjs runs in the main thread,
-// which is the correct approach for Vercel serverless environments.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-;(pdfjs as any).GlobalWorkerOptions.workerSrc = ''
+// Dynamic import to avoid top-level module initialization failures in Vercel serverless.
+// If pdfjs-dist fails to load (e.g. missing @napi-rs/canvas), the error surfaces inside
+// extractTextFromPDF where the route handler's try/catch can catch it and return a proper
+// 422 instead of a 405 (which happens when the route module fails to initialize).
 
 export async function extractTextFromPDF(buffer: ArrayBuffer): Promise<string> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const pdfjs = (await import('pdfjs-dist/legacy/build/pdf.mjs')) as any
+  // Disable the web worker — pdfjs runs in the main thread in serverless environments.
+  pdfjs.GlobalWorkerOptions.workerSrc = ''
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const loadingTask = (pdfjs as any).getDocument({ data: new Uint8Array(buffer) })
   const pdf = await loadingTask.promise
