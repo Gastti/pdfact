@@ -20,7 +20,7 @@ Convenciones y guía de desarrollo para el proyecto **doc-qa** (Document Q&A con
 | LLM                 | Groq — Llama 3.3 70B (`groq-sdk`)                            |
 | Embeddings          | Hugging Face — all-MiniLM-L6-v2, 384 dims (`@huggingface/inference`) |
 | Vector Search       | Supabase pgvector (extensión PostgreSQL)                      |
-| PDF Parsing         | pdfjs-dist                                                    |
+| PDF Parsing         | pdfjs-dist v5 — legacy build (`pdfjs-dist/legacy/build/pdf.mjs`) |
 | Testing             | Vitest + Testing Library                                      |
 | Deploy              | Vercel                                                        |
 
@@ -107,6 +107,13 @@ doc-qa/
 - Validar input antes de procesar
 - Errores: `{ error: string }` con status 4xx/5xx apropiado
 - Headers con datos Unicode: usar `encodeURIComponent` (HTTP headers solo aceptan ASCII)
+
+### PDF Parsing (pdfjs-dist v5)
+
+- Importar siempre desde `pdfjs-dist/legacy/build/pdf.mjs` — el build estándar requiere APIs de browser (`DOMMatrix`, etc.) que no existen en Node.js
+- Deshabilitar el web worker: `GlobalWorkerOptions.workerSrc = ''` — pdfjs corre en el hilo principal en entornos serverless (Vercel)
+- **No usar** `createRequire` + `pathToFileURL` para resolver el worker path — en v5 el `_require.resolve` de `.mjs` devuelve valores inesperados durante el build de Next.js
+- `next.config.ts` debe incluir `serverExternalPackages: ['pdfjs-dist']` para que no sea bundleado por webpack
 
 ### Supabase
 
