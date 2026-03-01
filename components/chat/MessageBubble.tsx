@@ -1,8 +1,9 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
-import { Tooltip as TooltipPrimitive } from 'radix-ui'
+import { Popover as PopoverPrimitive } from 'radix-ui'
+import { Check, Copy, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export type Source = {
@@ -20,44 +21,45 @@ type Props = {
 
 function CitationBadge({ number, source }: { number: number; source: Source }) {
 	return (
-		<TooltipPrimitive.Provider delayDuration={100}>
-			<TooltipPrimitive.Root>
-				<TooltipPrimitive.Trigger asChild>
-					<span
-						className={cn(
-							'relative mx-[2px] inline-flex h-[17px] w-[17px] cursor-default select-none',
-							'items-center justify-center rounded-full align-middle',
-							'border border-[#58a6ff]/30 bg-[#58a6ff]/10',
-							'font-mono text-[9px] font-semibold leading-none text-[#58a6ff]',
-							'transition-all duration-150',
-							'hover:scale-110 hover:border-[#58a6ff]/55 hover:bg-[#58a6ff]/20 hover:shadow-[0_0_6px_rgba(88,166,255,0.2)]',
-						)}
-					>
-						{number}
-					</span>
-				</TooltipPrimitive.Trigger>
+		<PopoverPrimitive.Root>
+			<PopoverPrimitive.Trigger asChild>
+				<button
+					aria-label={`Ver cita ${number}`}
+					className={cn(
+						'relative mx-[3px] inline-flex h-[18px] w-[18px] cursor-pointer select-none',
+						'items-center justify-center rounded-full align-middle',
+						'border border-[#58a6ff]/35 bg-[#58a6ff]/10',
+						'font-mono text-[9px] font-semibold leading-none text-[#58a6ff]',
+						'transition-all duration-150 outline-none',
+						'hover:border-[#58a6ff]/60 hover:bg-[#58a6ff]/20 hover:shadow-[0_0_6px_rgba(88,166,255,0.2)]',
+						'data-[state=open]:border-[#58a6ff]/70 data-[state=open]:bg-[#58a6ff]/25 data-[state=open]:shadow-[0_0_8px_rgba(88,166,255,0.3)]',
+						'focus-visible:ring-1 focus-visible:ring-[#58a6ff]/50',
+					)}
+				>
+					{number}
+				</button>
+			</PopoverPrimitive.Trigger>
 
-				<TooltipPrimitive.Portal>
-					<TooltipPrimitive.Content
-						side="top"
-						sideOffset={8}
-						collisionPadding={16}
-						className={cn(
-							'z-50 w-72 overflow-hidden rounded-xl',
-							'border border-[#30363d] bg-[#161b22]',
-							'shadow-xl shadow-black/60',
-							'animate-in fade-in-0 zoom-in-95 duration-100',
-							'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
-							'data-[side=top]:slide-in-from-bottom-1',
-							'data-[side=bottom]:slide-in-from-top-1',
-						)}
-					>
-						{/* Accent bar */}
-						<div className="h-[2px] w-full bg-gradient-to-r from-[#58a6ff]/60 via-[#58a6ff]/20 to-transparent" />
+			<PopoverPrimitive.Portal>
+				<PopoverPrimitive.Content
+					side="top"
+					sideOffset={10}
+					collisionPadding={16}
+					className={cn(
+						'z-50 w-72 overflow-hidden rounded-xl',
+						'border border-[#30363d] bg-[#161b22]',
+						'shadow-2xl shadow-black/70',
+						'animate-in fade-in-0 zoom-in-95 duration-150 data-[state=open]:slide-in-from-bottom-1',
+						'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
+					)}
+				>
+					{/* Accent bar */}
+					<div className="h-[2px] w-full bg-gradient-to-r from-[#58a6ff]/70 via-[#58a6ff]/25 to-transparent" />
 
-						<div className="px-3.5 py-3">
-							{/* Header */}
-							<div className="mb-2.5 flex items-center gap-2">
+					<div className="px-3.5 py-3">
+						{/* Header */}
+						<div className="mb-2.5 flex items-center justify-between gap-2">
+							<div className="flex items-center gap-2">
 								<span className="inline-flex h-[15px] w-[15px] shrink-0 items-center justify-center rounded-full border border-[#58a6ff]/30 bg-[#58a6ff]/10 font-mono text-[8px] font-semibold text-[#58a6ff]">
 									{number}
 								</span>
@@ -65,24 +67,83 @@ function CitationBadge({ number, source }: { number: number; source: Source }) {
 									Fragmento {source.chunk_index + 1}
 								</span>
 							</div>
-
-							{/* Content */}
-							<p className="text-[11px] leading-relaxed text-[#8b949e]">
-								{source.content.length > 280
-									? source.content.slice(0, 280) + '…'
-									: source.content}
-							</p>
+							<PopoverPrimitive.Close
+								aria-label="Cerrar"
+								className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md text-[#8b949e]/40 transition-colors hover:bg-[#21262d] hover:text-[#8b949e]"
+							>
+								<X className="h-3 w-3" />
+							</PopoverPrimitive.Close>
 						</div>
 
-						<TooltipPrimitive.Arrow
-							className="fill-[#30363d]"
-							width={10}
-							height={5}
-						/>
-					</TooltipPrimitive.Content>
-				</TooltipPrimitive.Portal>
-			</TooltipPrimitive.Root>
-		</TooltipPrimitive.Provider>
+						{/* Content */}
+						<p className="text-[11px] leading-relaxed text-[#8b949e]">
+							{source.content.length > 280
+								? source.content.slice(0, 280) + '…'
+								: source.content}
+						</p>
+					</div>
+
+					<PopoverPrimitive.Arrow className="fill-[#30363d]" width={10} height={5} />
+				</PopoverPrimitive.Content>
+			</PopoverPrimitive.Portal>
+		</PopoverPrimitive.Root>
+	)
+}
+
+function CopyButton({ content }: { content: string }) {
+	const [state, setState] = useState<'idle' | 'copied'>('idle')
+
+	async function copy() {
+		if (state === 'copied') return
+		const plain = content
+			.replace(/\[(\d+)\]/g, '')
+			.replace(/\*\*([^*]+)\*\*/g, '$1')
+			.replace(/\*([^*]+)\*/g, '$1')
+			.replace(/#{1,6} /g, '')
+			.replace(/`([^`]+)`/g, '$1')
+			.trim()
+		try {
+			await navigator.clipboard.writeText(plain)
+		} catch {
+			// Fallback para HTTP o browsers sin clipboard API
+			const el = document.createElement('textarea')
+			el.value = plain
+			el.style.cssText = 'position:fixed;opacity:0;pointer-events:none'
+			document.body.appendChild(el)
+			el.select()
+			document.execCommand('copy')
+			document.body.removeChild(el)
+		}
+		setState('copied')
+		setTimeout(() => setState('idle'), 2000)
+	}
+
+	return (
+		<button
+			onClick={copy}
+			aria-label={state === 'copied' ? 'Copiado' : 'Copiar respuesta'}
+			className={cn(
+				'mt-2 flex min-h-[36px] items-center gap-1.5 rounded-md px-2 py-1.5 text-[11px] font-medium',
+				'transition-all duration-200 outline-none',
+				state === 'copied'
+					? 'text-[#3fb950]'
+					: 'text-[#8b949e]/50 hover:bg-[#21262d] hover:text-[#8b949e] focus-visible:bg-[#21262d] focus-visible:text-[#8b949e]',
+			)}
+		>
+			<span
+				className={cn(
+					'transition-transform duration-150',
+					state === 'copied' ? 'scale-110' : 'scale-100',
+				)}
+			>
+				{state === 'copied' ? (
+					<Check className="h-3 w-3" strokeWidth={2.5} />
+				) : (
+					<Copy className="h-3 w-3" />
+				)}
+			</span>
+			<span>{state === 'copied' ? 'Copiado' : 'Copiar'}</span>
+		</button>
 	)
 }
 
@@ -208,6 +269,7 @@ export function MessageBubble({ role, content, streaming = false, sources }: Pro
 						</span>
 					)}
 				</div>
+				{!streaming && content && <CopyButton content={content} />}
 			</div>
 		</div>
 	)
