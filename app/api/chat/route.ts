@@ -96,6 +96,7 @@ export async function POST(request: Request) {
         conversation_id: conversationId,
         role: 'assistant',
         content: fullResponse,
+        sources: sources.length > 0 ? sources : null,
       })
     }
   })

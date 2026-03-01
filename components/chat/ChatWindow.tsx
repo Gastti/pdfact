@@ -32,6 +32,7 @@ export function ChatWindow({ conversationId, documentName, initialMessages }: Pr
 			id: m.id,
 			role: m.role,
 			content: m.content,
+			sources: m.sources ?? undefined,
 		}))
 	)
 	const [isStreaming, setIsStreaming] = useState(false)
@@ -44,8 +45,8 @@ export function ChatWindow({ conversationId, documentName, initialMessages }: Pr
 	async function handleSend(text: string) {
 		if (isStreaming) return
 
-		const userMsgId = crypto.randomUUID()
-		const assistantMsgId = crypto.randomUUID()
+		const userMsgId = Math.random().toString(36).slice(2) + Date.now().toString(36)
+		const assistantMsgId = Math.random().toString(36).slice(2) + Date.now().toString(36)
 
 		setMessages((prev) => [
 			...prev,

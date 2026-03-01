@@ -101,6 +101,7 @@ export type Database = {
           conversation_id: string
           role: 'user' | 'assistant'
           content: string
+          sources: { id: string; content: string; chunk_index: number }[] | null
           created_at: string
         }
         Insert: {
@@ -108,6 +109,7 @@ export type Database = {
           conversation_id: string
           role: 'user' | 'assistant'
           content: string
+          sources?: { id: string; content: string; chunk_index: number }[] | null
           created_at?: string
         }
         Update: {
@@ -115,6 +117,7 @@ export type Database = {
           conversation_id?: string
           role?: 'user' | 'assistant'
           content?: string
+          sources?: { id: string; content: string; chunk_index: number }[] | null
           created_at?: string
         }
         Relationships: [
