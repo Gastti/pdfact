@@ -2,7 +2,7 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
 	devIndicators: false,
-	serverExternalPackages: ['pdfjs-dist'],
+	serverExternalPackages: ['unpdf'],
 	experimental: {
 		optimizePackageImports: ['lucide-react'],
 	},
